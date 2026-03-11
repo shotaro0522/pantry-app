@@ -350,7 +350,7 @@ with tab3:
 
         for item in all_items:
             item_id = item["id"]
-            col_name, col_edit, col_del = st.columns([4, 1, 1])
+            col_name, col_edit, col_del = st.columns([6, 1, 1])
 
             with col_name:
                 icon = CATEGORY_ICONS.get(item["category"], "📁")
