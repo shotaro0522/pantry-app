@@ -197,7 +197,6 @@ with tab1:
 
             for item in cat_items:
                 qty = item["quantity"]
-                is_low = item["is_low_stock_alert"]
                 is_in_list = item.get("is_low_stock_alert", False)
                 item_id = item["id"]
                 name = item["name"]
@@ -205,24 +204,24 @@ with tab1:
                 if qty == 0:
                     badge = '<span class="badge badge-zero">在庫切れ</span>'
                     name_cls = "item-name-zero"
-                elif is_low:
+                elif is_in_list:
                     badge = f'<span class="badge badge-low">残り {qty}</span>'
                     name_cls = "item-name-low"
                 else:
                     badge = f'<span class="badge badge-ok">残り {qty}</span>'
                     name_cls = "item-name"
 
-                # アイテム行（名前 左、バッジ 右）
-                st.markdown(
-                    f'<div class="item-row">'
-                    f'<span class="{name_cls}">{name}</span>'
-                    f'{badge}'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
+                # 1行に：名前+バッジ ｜ ➕ ｜ ➖ ｜ 購入リスト
+                col_info, col_plus, col_minus, col_buy = st.columns([4, 1, 1, 2])
 
-                # ボタン行：➕ ➖ 購入リスト
-                col_plus, col_minus, col_buy = st.columns([1, 1, 2])
+                with col_info:
+                    st.markdown(
+                        f'<div class="item-row">'
+                        f'<span class="{name_cls}">{name}</span>'
+                        f'{badge}'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
 
                 with col_plus:
                     if st.button("➕", key=f"plus_{item_id}", use_container_width=True):
@@ -235,7 +234,7 @@ with tab1:
                         st.rerun()
 
                 with col_buy:
-                    buy_label = "✅ リスト済" if is_in_list else "🛒 購入リスト"
+                    buy_label = "✅ 済" if is_in_list else "🛒 リスト"
                     if st.button(buy_label, key=f"buy_{item_id}", use_container_width=True):
                         db.toggle_purchase_list(item_id, not is_in_list)
                         st.rerun()
@@ -255,12 +254,13 @@ with tab2:
         WEEKDAYS_JP = ["月", "火", "水", "木", "金", "土", "日"]
         start_wd = WEEKDAYS_JP[start_dt.weekday()]
         end_wd = WEEKDAYS_JP[end_dt.weekday()]
-        marathon_label = (
-            f"🛒 買い物マラソン　"
-            f"{start_dt.month}月{start_dt.day}日（{start_wd}）〜 "
-            f"{end_dt.month}月{end_dt.day}日（{end_wd}）"
+        st.markdown(
+            f'<div class="marathon-banner">'
+            f'🛒 次回の買い物マラソン<br>'
+            f'{start_dt.month}月{start_dt.day}日（{start_wd}）〜{end_dt.month}月{end_dt.day}日（{end_wd}）'
+            f'</div>',
+            unsafe_allow_html=True,
         )
-        st.markdown(f'<div class="marathon-banner">{marathon_label}</div>', unsafe_allow_html=True)
     else:
         st.warning("次回買い物マラソン日未設定")
 
