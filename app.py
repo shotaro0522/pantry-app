@@ -98,14 +98,29 @@ st.markdown("""
 .badge-low  { background: #fef9e7; color: #e67e22; }
 .badge-zero { background: #fdecea; color: #c0392b; }
 
+/* ── カラム：モバイルでも必ず横並び ── */
+[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+}
+[data-testid="stColumn"] {
+    min-width: 0 !important;
+    flex: 1 1 0% !important;
+    overflow: hidden !important;
+}
+
 /* ── ボタン共通 ── */
 button[kind="secondary"] {
     border-radius: 8px !important;
-    font-size: 1rem !important;
-    padding: 0.25rem !important;
+    font-size: 0.85rem !important;
+    padding: 0.25rem 0.1rem !important;
     border: 1px solid #e0dbd7 !important;
     background: #faf9f7 !important;
     color: #3d3530 !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 button[kind="secondary"]:hover {
     background: #f0ece8 !important;
@@ -211,17 +226,17 @@ with tab1:
                     badge = f'<span class="badge badge-ok">残り {qty}</span>'
                     name_cls = "item-name"
 
-                # 1行に：名前+バッジ ｜ ➕ ｜ ➖ ｜ 購入リスト
-                col_info, col_plus, col_minus, col_buy = st.columns([4, 1, 1, 2])
+                # 1行目：名前 + バッジ
+                st.markdown(
+                    f'<div class="item-row">'
+                    f'<span class="{name_cls}">{name}</span>'
+                    f'{badge}'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
-                with col_info:
-                    st.markdown(
-                        f'<div class="item-row">'
-                        f'<span class="{name_cls}">{name}</span>'
-                        f'{badge}'
-                        f'</div>',
-                        unsafe_allow_html=True,
-                    )
+                # 2行目：3等分ボタン（モバイルでも横並び保証）
+                col_plus, col_minus, col_buy = st.columns(3)
 
                 with col_plus:
                     if st.button("➕", key=f"plus_{item_id}", use_container_width=True):
@@ -238,6 +253,8 @@ with tab1:
                     if st.button(buy_label, key=f"buy_{item_id}", use_container_width=True):
                         db.toggle_purchase_list(item_id, not is_in_list)
                         st.rerun()
+
+                st.markdown("<div style='margin-bottom:0.6rem'></div>", unsafe_allow_html=True)
 
 
 # ──────────────────────────────────────────────
