@@ -14,7 +14,7 @@ def get_all_items() -> list[dict]:
     return response.data
 
 
-def get_low_stock_items() -> list[dict]:
+def get_purchase_list_items() -> list[dict]:
     client = get_client()
     response = (
         client.table("items")
@@ -27,28 +27,26 @@ def get_low_stock_items() -> list[dict]:
     return response.data
 
 
-def add_item(category: str, name: str, quantity: int, is_low_stock_alert: bool) -> None:
+def toggle_purchase_list(item_id: int, value: bool) -> None:
     client = get_client()
-    # quantity <= 1 の場合は自動でアラートON
-    if quantity <= 1:
-        is_low_stock_alert = True
+    client.table("items").update({"is_low_stock_alert": value}).eq("id", item_id).execute()
+
+
+def add_item(category: str, name: str, quantity: int) -> None:
+    client = get_client()
     client.table("items").insert(
         {
             "category": category,
             "name": name,
             "quantity": quantity,
-            "is_low_stock_alert": is_low_stock_alert,
+            "is_low_stock_alert": False,
         }
     ).execute()
 
 
 def update_quantity(item_id: int, new_quantity: int) -> None:
     client = get_client()
-    # quantity <= 1 の場合は is_low_stock_alert を自動でTrue
-    is_low_stock_alert = new_quantity <= 1
-    client.table("items").update(
-        {"quantity": new_quantity, "is_low_stock_alert": is_low_stock_alert}
-    ).eq("id", item_id).execute()
+    client.table("items").update({"quantity": new_quantity}).eq("id", item_id).execute()
 
 
 def update_item(
@@ -56,18 +54,13 @@ def update_item(
     category: str,
     name: str,
     quantity: int,
-    is_low_stock_alert: bool,
 ) -> None:
     client = get_client()
-    # quantity <= 1 の場合は is_low_stock_alert を強制True
-    if quantity <= 1:
-        is_low_stock_alert = True
     client.table("items").update(
         {
             "category": category,
             "name": name,
             "quantity": quantity,
-            "is_low_stock_alert": is_low_stock_alert,
         }
     ).eq("id", item_id).execute()
 
