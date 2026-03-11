@@ -105,7 +105,6 @@ st.markdown("""
 }
 [data-testid="stColumn"] {
     min-width: 0 !important;
-    flex: 1 1 0% !important;
     overflow: hidden !important;
 }
 
